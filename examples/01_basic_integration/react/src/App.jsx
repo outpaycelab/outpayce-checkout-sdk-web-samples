@@ -9,7 +9,7 @@ function App() {
   
   useEffect(() => {
     let SDKConfiguration = {
-      container: 'payment-form-containter',
+      container: 'payment-form-container',
       ppid: '<PPID>',
       environment: '<ENV>',
       locale: 'en-GB',
@@ -55,7 +55,7 @@ function App() {
 
   return (
     <>
-      <div id="payment-form-containter"></div>
+      <div id="payment-form-container"></div>
       <button class="pay-btn" onClick={ () => checkoutRef.current.pay() }>PAY</button>
     </>
   )
