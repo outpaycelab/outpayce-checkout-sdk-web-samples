@@ -1,0 +1,85 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <script src="https://pdt.payment.amadeus.com/checkout/sdk/4.0.0/sdk-es2015.js" integrity="sha384-xvc3rZS/zWy8mL4Ykp6/+RNFY82Gcr0zGdxjhIbvCjwAx6zQHbdSDW6cywI63yiS" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://pdt.payment.amadeus.com/checkout/sdk/4.0.0/sdk.css" integrity="sha384-PxY0l2o4ZNHU96cDetNVSb5wJDrxX63KNcT60xxnPjxvx4/uxfFxysATJleJHaaQ" crossorigin="anonymous">
+    </head>
+    <body>
+        <div id='mop-list-container'></div>
+    </body>
+    <script>
+        let checkout;
+        function startSDK(ppid) {
+            var sdkConfiguration = {
+                environment: 'pdt',
+                ppid: ppid,
+                locale:'en',
+                container: 'mop-list-container',
+                options: {}
+            };
+            checkout = new AmadeusCheckout(sdkConfiguration);
+            checkout.onReady = function(mopsList, sessionTimeout, paymentDetails) {
+                const callbackData = {
+                    callback: "onReady",
+                    mopsList: mopsList,
+                    sessionTimeout: sessionTimeout,
+                    paymentDetails: paymentDetails
+                }
+                callNativeApp (JSON.stringify(callbackData))
+            };
+            checkout.onChange = function(change) {
+                const callbackData = {
+                    callback: "onChange",
+                    change: change
+                }
+                callNativeApp (JSON.stringify(callbackData))
+            };
+            checkout.onPaymentMethodsChange = function(change) {
+                const callbackData = {
+                    callback: "onPaymentMethodsChange",
+                    change: change
+                }
+                callNativeApp (JSON.stringify(callbackData))
+            };
+            checkout.onRedirectionNeeded = function(mopId, redirectionRequest) {
+                const callbackData = {
+                    callback: "onRedirectionNeeded",
+                    mopId: mopId,
+                    redirectionRequest: redirectionRequest
+                }
+                callNativeApp (JSON.stringify(callbackData))
+            }
+            checkout.onSuccess = function(mainMopId, successData) {
+                const callbackData = {
+                    callback: "onSuccess",
+                    mainMopId: mainMopId,
+                    successData: successData
+                }
+                callNativeApp (JSON.stringify(callbackData))
+            };
+            checkout.onError = function(mopId, errorDetails) {
+                const callbackData = {
+                    callback: "onError",
+                    mopId: mopId,
+                    errorDetails: errorDetails
+                }
+                callNativeApp (JSON.stringify(callbackData))
+            };
+            checkout.start();
+        }
+        function pay() {
+            callNativeApp("PAY");
+            checkout.pay();
+        }
+        function callNativeApp (message) {
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.messageHandler) {
+                window.webkit.messageHandlers.messageHandler.postMessage({
+                    "message": message
+                });
+            }
+        }
+
+        </script>
+</html>
+
