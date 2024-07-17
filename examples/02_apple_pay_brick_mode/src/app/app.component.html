@@ -1,0 +1,9 @@
+
+@if(ppid) {
+  <div class="main-page">
+    <app-card-form></app-card-form>
+    <app-applepay [ppid]="ppid"></app-applepay>
+  </div>
+} @else {
+  <button class="access-btn" (click)="getPPID()">Access Payment</button>
+}
