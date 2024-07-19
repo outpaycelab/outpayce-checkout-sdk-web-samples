@@ -1,0 +1,17 @@
+@defer(when !loading()) {
+    @if(applePayIcon()) {
+        <div class="apple-container">
+        <h1>Use Outpayce SDK with Apple Pay</h1>
+            <button class="apple-pay-btn" (click)="payWithApple()">
+                <img [src]="applePayIcon()" alt="pay with apple pay" class="apple-logo">
+            </button>
+        </div>
+    } @else {
+        <h2>Apple pay is not available on this device.</h2>
+    }
+} @placeholder {
+    <h2>Loading...</h2>
+}
+
+
+<div id="apple-pay-container"></div>
