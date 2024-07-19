@@ -2,9 +2,11 @@
 
 ## Disclaimers
 
-We will assume that you know how to generate a PPID from your server. On the application we will build a fake server that will return a static PPID. It will need to be replaced by the actual call to the api.
+- We will assume that you know how to generate a PPID from your server. On the application we will build a fake server that will return a static PPID. It will need to be replaced by the actual call to the api.
 
-On this tutorial we will focus on displaying a single Apple Pay method of payment, but it will be the same for any other payment method you need.
+- On this tutorial we will focus on displaying a single Apple Pay method of payment, but it will be the same for any other payment method you need.
+
+- Keep in mind that you will not be able to finalize the payment in a localhost environment, as you will need to [Register and Verify Your Domain](https://developer.apple.com/documentation/apple_pay_on_the_web/configuring_your_environment#3179109) on Apple to make it work.
 
 
 ## Step 1: Setup the project
@@ -147,6 +149,8 @@ Now don't forget to bind the onSuccess and onError callbacks to have feedbacks o
 this.checkout.onSuccess = (mainMopId: any, successData: any) => { console.info("Success ! ", successData); };
 this.checkout.onError = (mopId: any, errorDetails: any) => { console.error("Error ! ", errorDetails); };
 ```
+
+After you receive a success message from the UI, you will need to call again you backend to trigger a Checkout API call in order to confirm the payment status on our servers.
 
 ## Conclusion
 
