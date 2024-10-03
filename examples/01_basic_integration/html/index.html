@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script
+      src="https://pdt.payment.amadeus.com/checkout/sdk/4.0.0/sdk-es2015.js"
+      integrity="sha384-xvc3rZS/zWy8mL4Ykp6/+RNFY82Gcr0zGdxjhIbvCjwAx6zQHbdSDW6cywI63yiS"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://pdt.payment.amadeus.com/checkout/sdk/4.0.0/sdk.css"
+      integrity="sha384-PxY0l2o4ZNHU96cDetNVSb5wJDrxX63KNcT60xxnPjxvx4/uxfFxysATJleJHaaQ"
+      crossorigin="anonymous"
+    />
+    <title>Outpayce Checkout SDK - Basic HTML Integration</title>
+    <style>
+        #pay-button {
+            display: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            border: 2px solid #4CAF50;
+            color: #fff;
+            background-color: #4CAF50;
+            border-radius: 6px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            cursor: pointer;
+        }
+        .pay-button:hover {
+            background-color: #fff;
+            color: #4CAF50;
+        }
+        .pay-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="payment-form-container"></div>
+    <button id="pay-button" onclick="pay()">Pay</button>
+</body>
+<script>
+    var SDKConfiguration = {
+        container: 'payment-form-container',
+        ppid: '<PPID>',
+        environment: '<ENV>',
+        locale: 'en-GB',
+        options: {}
+    }
+    var checkout = new AmadeusCheckout(SDKConfiguration);
+
+    checkout.onReady = function (mopsList, sessionTimeout) {
+        console.log(mopsList);
+        document.getElementById("pay-button").style.display = "inline";
+    };
+
+    checkout.onSuccess = function (mainMopId, successData) {
+        console.log(successData);
+    };
+
+    // Start the SDK
+    checkout.start();
+
+    function pay() {
+        checkout.pay();
+    }
+</script>
+</html>
