@@ -20,12 +20,11 @@ This is why this repository is serving the UI on https.
 Please check on the [Apple Website](https://developer.apple.com/documentation/apple_pay_on_the_web) for all other requirements.
 
 
-
 ## Video tutorial
 
 This video will help you to understand this sample application.
 
-https://www.youtube.com/watch?v=HZp5bBbuXZI
+> TODO
 
 ## Pre-requisites
 

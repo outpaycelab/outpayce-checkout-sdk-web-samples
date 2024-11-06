@@ -4,12 +4,6 @@ Sample application to integrate the Outpayce Checkout SDK in an iOS (mobile) app
 
 Our SDK can be integrated into a webview of iOS application. This repository show you a working example for you to get started. Based on that, you will be able to adapt your iOS application to your needs.
 
-## Video tutorial
-
-This video will help you to understand this sample application.
-
-// video to come
-
 ## Pre-requisites
 
 - Having a Mac and XCode installed

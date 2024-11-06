@@ -1,12 +1,12 @@
-# 01 Basic Integration - React
+# 01 Basic Integration - HTML / CSS / JavaScript
 
-Sample application to integrate the Outpayce Checkout SDK in a React application.
+Sample application to integrate the Outpayce Checkout SDK in an HTML web page.
 
 ## Video tutorial
 
 This video will help you to understand this sample application.
 
-> https://www.youtube.com/watch?v=HZp5bBbuXZI
+> https://www.youtube.com/watch?v=PgFE8SqvKqA
 
 ## Pre-requisites
 
@@ -17,10 +17,6 @@ https://outpayce.com/en/forms/contact-sales
 - Replace the environment `environment: '<ENV>',` by the targeted one (usually `prd` for production)
 
 
-## Install
-
-> npm install 
-
 ## Run
 
-> npm run dev
+Open the file `index.html` in your web browser
