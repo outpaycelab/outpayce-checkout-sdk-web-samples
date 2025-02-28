@@ -24,7 +24,7 @@ Please check on the [Apple Website](https://developer.apple.com/documentation/ap
 
 This video will help you to understand this sample application.
 
-> TODO
+https://www.youtube.com/watch?v=rMwcfaX5jZE
 
 ## Pre-requisites
 
