@@ -17,14 +17,10 @@ function App() {
     };
     let checkout = new AmadeusCheckout(SDKConfiguration);
 
-    checkout.onReady = function(mopsList, sessionTimeout) {
+    checkout.onReady = function(mopsList, sessionTimeout, paymentDetails) {
+        checkoutRef.current = checkout;
         // Called as soon as the SDK as retrieved the list of available method of payment
-        console.log("onReady")
-    };
-    checkout.onChange = function(change) {
-        // Called when there is a change on: the selected method, the fees, the card bin or the validity of the form
-        //This method is deprecated and will be replaced by onPaymentMethodsChange
-        console.log("onChange")
+        console.log(`onReady \nMops: ${JSON.stringify(mopsList)} \nTimeout ${sessionTimeout} \nPaymentDetails ${JSON.stringify(paymentDetails)}`);
     };
     checkout.onPaymentMethodsChange = function(change) {
         // Called when there is a change on: the selected methods of payment, the fees, the cards bin or the validity of the form
@@ -45,18 +41,18 @@ function App() {
     };
     checkout.delegateServerCall = function(actionTokenList, delegationType) {
         // Called when there is a payment transaction that is delegated to calling application.
-        // For standard integrations this callback can be ignored.
+        // To be used when intregrating the SDK with Digital API (/purchare/orders APIs)
         console.log("delegateServerCall")
+        return Promise.resolve();
     };
 
     checkout.start();
-    checkoutRef.current = checkout;
   }, []);
 
   return (
     <>
       <div id="payment-form-container"></div>
-      <button class="pay-btn" onClick={ () => checkoutRef.current.pay() }>PAY</button>
+      <button className="pay-btn" onClick={ () => checkoutRef.current.pay() }>PAY</button>
     </>
   )
 }
