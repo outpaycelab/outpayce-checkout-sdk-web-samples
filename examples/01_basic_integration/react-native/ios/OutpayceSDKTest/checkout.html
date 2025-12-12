@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Outpayce Checkout</title>
+    
+    <!-- Outpayce SDK CSS -->
+    <link 
+      rel="stylesheet" 
+      href="https://pdt.payment.amadeus.com/checkout/sdk/4.0.0/sdk.css" 
+      integrity="sha384-PxY0l2o4ZNHU96cDetNVSb5wJDrxX63KNcT60xxnPjxvx4/uxfFxysATJleJHaaQ" 
+      crossorigin="anonymous"
+    />
+    
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f5f5f5;
+        padding: 16px;
+        min-height: 100vh;
+      }
+      
+      .debug-panel {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      
+      .debug-panel h3 {
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .debug-info {
+        font-size: 12px;
+        color: #666;
+        line-height: 1.6;
+      }
+      
+      .debug-info .warning {
+        color: #dc3545;
+        font-weight: 600;
+      }
+      
+      .debug-info .success {
+        color: #28a745;
+        font-weight: 600;
+      }
+      
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        margin: 12px 0;
+      }
+      
+      .status-indicator.loading {
+        background: #fff3cd;
+        color: #856404;
+      }
+      
+      .status-indicator.success {
+        background: #d4edda;
+        color: #155724;
+      }
+      
+      .status-indicator.error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      
+      #mop-list-container {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        min-height: 200px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      
+      .placeholder-text {
+        color: #999;
+        text-align: center;
+        padding: 40px 20px;
+        font-size: 14px;
+      }
+      
+      #error-details {
+        display: none;
+        background: #fff5f5;
+        border: 1px solid #f8d7da;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+        font-size: 11px;
+        color: #721c24;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+      
+      .log-entry {
+        margin-bottom: 4px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+      }
+      
+      .log-entry:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Debug Panel - Device Info -->
+    <div class="debug-panel">
+      <h3>📱 Device Information</h3>
+      <div class="debug-info">
+        <div id="ios-version">iOS Version: Detecting...</div>
+        <div id="webkit-version">WebKit: Detecting...</div>
+        <div id="user-agent" style="word-break: break-all; font-size: 10px; margin-top: 8px; color: #999;"></div>
+      </div>
+    </div>
+
+    <!-- SDK Status Panel -->
+    <div class="debug-panel">
+      <h3>🔌 SDK Status</h3>
+      <div id="sdk-status" class="status-indicator loading">
+        <span>⏳</span> Loading SDK...
+      </div>
+      <div id="error-details"></div>
+    </div>
+
+    <!-- Payment Form Container -->
+    <div id="mop-list-container">
+      <p class="placeholder-text">Payment form will appear here after SDK loads</p>
+    </div>
+
+    <!-- Pre-SDK Debug Script -->
+    <script>
+      // Track SDK load timing
+      window.__SDK_LOAD_START__ = Date.now();
+      window.__SDK_ERRORS__ = [];
+      
+      // Detect iOS version from User Agent
+      var userAgent = navigator.userAgent;
+      document.getElementById('user-agent').textContent = 'UA: ' + userAgent;
+      
+      var iosVersionMatch = userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
+      if (iosVersionMatch) {
+        var iosVersion = iosVersionMatch[1] + '.' + iosVersionMatch[2];
+        if (iosVersionMatch[3]) {
+          iosVersion += '.' + iosVersionMatch[3];
+        }
+        var versionEl = document.getElementById('ios-version');
+        versionEl.textContent = 'iOS Version: ' + iosVersion;
+        
+        var majorVersion = parseInt(iosVersionMatch[1], 10);
+        if (majorVersion <= 16) {
+          versionEl.innerHTML = 'iOS Version: ' + iosVersion + ' <span class="warning">⚠️ POTENTIALLY AFFECTED</span>';
+        } else {
+          versionEl.innerHTML = 'iOS Version: ' + iosVersion + ' <span class="success">✓ SUPPORTED</span>';
+        }
+      }
+      
+      var webkitMatch = userAgent.match(/AppleWebKit\/(\d+\.?\d*)/);
+      if (webkitMatch) {
+        document.getElementById('webkit-version').textContent = 'WebKit: ' + webkitMatch[1];
+      }
+
+      // Communication with React Native
+      function sendToReactNative(type, data) {
+        var message = JSON.stringify({ type: type, data: data, timestamp: Date.now() });
+        
+        // React Native WebView
+        if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+          window.ReactNativeWebView.postMessage(message);
+        }
+        
+        // Native iOS WKWebView
+        if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.messageHandler) {
+          window.webkit.messageHandlers.messageHandler.postMessage({ message: message });
+        }
+        
+        console.log('[Bridge]', type, data);
+      }
+
+      // Global error handler
+      window.onerror = function(message, source, lineno, colno, error) {
+        var errorInfo = {
+          message: message,
+          source: source,
+          line: lineno,
+          column: colno,
+          stack: error ? error.stack : null
+        };
+        window.__SDK_ERRORS__.push(errorInfo);
+        updateStatus('error', 'JavaScript Error: ' + message);
+        sendToReactNative('js_error', errorInfo);
+        return false;
+      };
+
+      // Unhandled promise rejection handler
+      window.onunhandledrejection = function(event) {
+        var errorInfo = {
+          message: 'Unhandled Promise Rejection',
+          reason: event.reason ? event.reason.toString() : 'Unknown'
+        };
+        window.__SDK_ERRORS__.push(errorInfo);
+        updateStatus('error', 'Promise Error: ' + errorInfo.reason);
+        sendToReactNative('promise_error', errorInfo);
+      };
+
+      // Update status display
+      function updateStatus(status, message) {
+        var statusEl = document.getElementById('sdk-status');
+        var errorDetailsEl = document.getElementById('error-details');
+        
+        statusEl.className = 'status-indicator ' + status;
+        
+        var icon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳';
+        statusEl.innerHTML = '<span>' + icon + '</span> ' + message;
+        
+        if (status === 'error' && window.__SDK_ERRORS__.length > 0) {
+          errorDetailsEl.style.display = 'block';
+          errorDetailsEl.innerHTML = window.__SDK_ERRORS__.map(function(e, i) {
+            return '<div class="log-entry"><strong>Error ' + (i + 1) + ':</strong> ' + e.message + '</div>';
+          }).join('');
+        }
+      }
+
+      // Send initialization info
+      sendToReactNative('init', {
+        userAgent: userAgent,
+        iosVersion: iosVersionMatch ? iosVersionMatch[0] : null,
+        webkitVersion: webkitMatch ? webkitMatch[1] : null,
+        timestamp: Date.now()
+      });
+    </script>
+
+    <!-- Outpayce SDK Script -->
+    <script 
+      src="https://pdt.payment.amadeus.com/checkout/sdk/4.0.0/sdk-es2015.js" 
+      integrity="sha384-xvc3rZS/zWy8mL4Ykp6/+RNFY82Gcr0zGdxjhIbvCjwAx6zQHbdSDW6cywI63yiS" 
+      crossorigin="anonymous"
+      onload="onSDKScriptLoad()"
+      onerror="onSDKScriptError(event)"
+    ></script>
+
+    <!-- SDK Initialization Script -->
+    <script>
+      var checkout = null;
+
+      function onSDKScriptLoad() {
+        var loadTime = Date.now() - window.__SDK_LOAD_START__;
+        
+        if (typeof AmadeusCheckout !== 'undefined') {
+          updateStatus('success', 'SDK Loaded Successfully (' + loadTime + 'ms)');
+          document.getElementById('mop-list-container').innerHTML = '<p class="placeholder-text">SDK ready. Call startSDK(ppid) to initialize payment form.</p>';
+          sendToReactNative('sdk_loaded', { 
+            success: true, 
+            loadTime: loadTime,
+            sdkVersion: '4.0.0'
+          });
+        } else {
+          updateStatus('error', 'SDK script loaded but AmadeusCheckout is undefined');
+          sendToReactNative('sdk_error', { 
+            error: 'AmadeusCheckout undefined after script load',
+            loadTime: loadTime
+          });
+        }
+      }
+
+      function onSDKScriptError(event) {
+        var loadTime = Date.now() - window.__SDK_LOAD_START__;
+        var errorInfo = {
+          error: 'SDK script failed to load',
+          loadTime: loadTime,
+          src: event.target ? event.target.src : 'unknown'
+        };
+        window.__SDK_ERRORS__.push({ message: 'Script load failed: ' + errorInfo.src });
+        updateStatus('error', 'SDK Failed to Load');
+        sendToReactNative('sdk_error', errorInfo);
+      }
+
+      // Initialize the SDK with a PPID
+      function startSDK(ppid) {
+        if (typeof AmadeusCheckout === 'undefined') {
+          sendToReactNative('error', { error: 'AmadeusCheckout not available' });
+          return;
+        }
+
+        try {
+          var sdkConfiguration = {
+            environment: 'pdt',
+            ppid: ppid,
+            locale: 'en',
+            container: 'mop-list-container',
+            options: {}
+          };
+
+          checkout = new AmadeusCheckout(sdkConfiguration);
+
+          // SDK Callbacks
+          checkout.onReady = function(mopsList, sessionTimeout, paymentDetails) {
+            sendToReactNative('onReady', {
+              mopsList: mopsList,
+              sessionTimeout: sessionTimeout,
+              paymentDetails: paymentDetails
+            });
+          };
+
+          checkout.onChange = function(change) {
+            sendToReactNative('onChange', { change: change });
+          };
+
+          checkout.onPaymentMethodsChange = function(change) {
+            sendToReactNative('onPaymentMethodsChange', { change: change });
+          };
+
+          checkout.onRedirectionNeeded = function(mopId, redirectionRequest) {
+            sendToReactNative('onRedirectionNeeded', {
+              mopId: mopId,
+              redirectionRequest: redirectionRequest
+            });
+          };
+
+          checkout.onSuccess = function(mainMopId, successData) {
+            sendToReactNative('onSuccess', {
+              mainMopId: mainMopId,
+              successData: successData
+            });
+          };
+
+          checkout.onError = function(mopId, errorDetails) {
+            sendToReactNative('onError', {
+              mopId: mopId,
+              errorDetails: errorDetails
+            });
+          };
+
+          checkout.start();
+          sendToReactNative('sdk_started', { ppid: ppid });
+
+        } catch (e) {
+          var errorInfo = {
+            error: 'SDK initialization failed',
+            message: e.message,
+            stack: e.stack
+          };
+          window.__SDK_ERRORS__.push({ message: 'Init error: ' + e.message });
+          updateStatus('error', 'SDK Init Error: ' + e.message);
+          sendToReactNative('init_error', errorInfo);
+        }
+      }
+
+      // Trigger payment
+      function pay() {
+        if (checkout) {
+          sendToReactNative('pay_triggered', {});
+          checkout.pay();
+        } else {
+          sendToReactNative('error', { error: 'Checkout not initialized' });
+        }
+      }
+
+      // Timeout fallback - detect if SDK never loads
+      setTimeout(function() {
+        if (typeof AmadeusCheckout === 'undefined') {
+          updateStatus('error', 'SDK Load Timeout (15 seconds)');
+          sendToReactNative('sdk_timeout', { 
+            errors: window.__SDK_ERRORS__,
+            duration: Date.now() - window.__SDK_LOAD_START__
+          });
+        }
+      }, 15000);
+    </script>
+  </body>
+</html>

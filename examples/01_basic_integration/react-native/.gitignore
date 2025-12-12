@@ -1,0 +1,75 @@
+# Build artifacts
+build/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# React Native
+.expo/
+.expo-shared/
+
+# iOS - Build artifacts (keep native project)
+ios/build/
+ios/Pods/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+ios/DerivedData/
+
+# Android - Build artifacts (keep native project)
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/*.iml
+android/.idea/
+
+# Bundle artifacts
+*.jsbundle
+*.bundle
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+*.pem
+
+# Testing
+coverage/
+
+# Temporary files
+*.log
+tmp/
+temp/
+
+# Xcode
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+DerivedData/
